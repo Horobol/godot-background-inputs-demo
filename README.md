@@ -1,10 +1,12 @@
 # Sample Background Hotkeys
 
+**Warning:** This serves as a proof of concept to get key states while Godot is not in focus and only has an implementation for Windows. It does NOT produce any Linux/MacOS specific libraries if you change the platform as of yet.
+
 ## Prerequisites
 
 If you are looking to build the GDExtension yourself you will need to follow the [prerequisites page on the Godot documenation](https://docs.godotengine.org/en/stable/tutorials/scripting/gdextension/gdextension_cpp_example.html) 
 
-- **Note:** You can technically use the .dll file inside the HotkeyTest and setup gdextensions like I have in the `HotkeyTest/bin` directory. This should work provided you are using `4.1.2-stable` release of Godot. This technically can work for later versions, though Godot may change the implementation of GDExtensions as it is still in development.
+- **Note:** You can technically use the .dll/.exp/.lib files inside the HotkeyTest and setup gdextensions like I have in the `HotkeyTest/bin` directory. This should work provided you are using `4.1.2-stable` release of Godot. This technically can work for later versions, though Godot may change the implementation of GDExtensions as it is still in development.
 
 ## Building
 
