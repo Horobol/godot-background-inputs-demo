@@ -6,6 +6,10 @@ If you are looking to build the GDExtension yourself you will need to follow the
 
 - **Note:** You can technically use the .dll file inside the HotkeyTest and setup gdextensions like I have in the `HotkeyTest/bin` directory. This should work provided you are using `4.1.2-stable` release of Godot. This technically can work for later versions, though Godot may change the implementation of GDExtensions as it is still in development.
 
+## Building
+
+Provided you followed the steps in the Godot documentation. Simply running `scons platform=windows` in the root directory will build the GDExtension libraries and drop them into the HotkeyTest `bin` directory for use in that project.
+
 ## Files
 
 ### godot-cpp
