@@ -1,0 +1,21 @@
+[gd_scene load_steps=3 format=3 uid="uid://bi6a8an1q30df"]
+
+[ext_resource type="Script" path="res://Label.gd" id="1_pfhxv"]
+[ext_resource type="Texture2D" uid="uid://iy6dxa16tvqn" path="res://icon.svg" id="1_whbxp"]
+
+[node name="Node2D" type="Node2D"]
+
+[node name="Label" type="Label" parent="."]
+offset_left = 347.0
+offset_top = 211.0
+offset_right = 597.0
+offset_bottom = 387.0
+theme_override_font_sizes/font_size = 64
+text = "Nothing"
+script = ExtResource("1_pfhxv")
+
+[node name="Win32InputCapture" type="Win32InputCapture" parent="."]
+position = Vector2(-83, -76)
+texture = ExtResource("1_whbxp")
+
+[connection signal="bg_key_pressed" from="Win32InputCapture" to="Label" method="_on_win_32_input_capture_bg_key_pressed"]
