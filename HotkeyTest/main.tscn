@@ -14,8 +14,8 @@ theme_override_font_sizes/font_size = 64
 text = "Nothing"
 script = ExtResource("1_pfhxv")
 
-[node name="Win32InputCapture" type="Win32InputCapture" parent="."]
+[node name="BackgroundInputCapture" type="BackgroundInputCapture" parent="."]
 position = Vector2(-83, -76)
 texture = ExtResource("1_whbxp")
 
-[connection signal="bg_key_pressed" from="Win32InputCapture" to="Label" method="_on_win_32_input_capture_bg_key_pressed"]
+[connection signal="bg_key_pressed" from="BackgroundInputCapture" to="Label" method="_on_win_32_input_capture_bg_key_pressed"]
