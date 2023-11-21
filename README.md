@@ -1,16 +1,16 @@
 # Sample Background Hotkeys
 
-**Warning:** This serves as a proof of concept to get key states while Godot is not in focus and only has an implementation for Windows. It does NOT produce any Linux/MacOS specific libraries if you change the platform as of yet.
+**Warning:** This serves as a proof of concept to get key states while Godot is not in focus. The Linux libraries will emit signals for ALL keypresses and emit the integer keycode themselves AND it makes assumptions of the keyboard input device that may not apply to all Linux machines. I will be updating these fairly soon 
 
 ## Prerequisites
 
 If you are looking to build the GDExtension yourself you will need to follow the [prerequisites page on the Godot documenation](https://docs.godotengine.org/en/stable/tutorials/scripting/gdextension/gdextension_cpp_example.html) 
 
-- **Note:** You can technically use the .dll/.exp/.lib files inside the HotkeyTest and setup gdextensions like I have in the `HotkeyTest/bin` directory. This should work provided you are using `4.1.2-stable` release of Godot. This technically can work for later versions, though Godot may change the implementation of GDExtensions as it is still in development.
+- **Note:** You can technically use the .dll/.exp/.lib/.so/.framework files inside the HotkeyTest and setup gdextensions like I have in the `HotkeyTest/bin` directory. This should work provided you are using `4.1.2-stable` release of Godot. This technically can work for later versions, though Godot may change the implementation of GDExtensions as it is still in development.
 
 ## Building
 
-Provided you followed the steps in the Godot documentation. Simply running `scons platform=windows` in the root directory will build the GDExtension libraries and drop them into the HotkeyTest `bin` directory for use in that project.
+Provided you followed the steps in the Godot documentation (particularly fetching the godot-cpp repository and building it with scons). Simply running `scons platform=[platform]` in the root directory will build the GDExtension libraries and drop them into the HotkeyTest `bin` directory for use in that project. Eligible platforms are: `windows`, `macos`, `linux`
 
 ## Files
 
@@ -26,4 +26,16 @@ This folder contains a tiny Godot project that utilizes the GDExtension in this 
 
 ### src
 
-This folder contains the C++ code that implements the custom Node. At its core it simply uses the Windows `GetAsyncKeyState` method to listen for key events at that frame. Due to how its implemented this works for events while the application is unfocused, particularly useful for hotkeys. Additionally it sets up a signal and emits it.
+This folder contains the C++ code that implements the custom Node. Platform dependant code will behave differently for each operating system but will ultimately result in input being captured regardless of whether the Godot window is in focus or not. Each OS has a slightly different approach:
+
+#### Windows
+
+- Simply uses the `GetAsyncKeyState` method to check the state of the keys in the map on a given frame. For this demo I have mapped out the F1-F12 keys. [Check the Microsoft Docs for more information on GetAsyncKeyState](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getasynckeystate)
+
+#### MacOS
+
+- Similar to the Windows implementation, this uses the `CGEventSourceKeyState` method to check the state of the keys in the map on a given frame. F1-F12 keys are mapped. [Check the Apple Docs for more information on CGEventSourceKeyState](https://developer.apple.com/documentation/coregraphics/1408768-cgeventsourcekeystate)
+
+#### Linux
+
+- This one is slightly more interesting as there is no official API for this. A file descriptor is opened that will attempt to read incoming events from the keyboard input device (currently hardcoded, but looking at how this can automatically detect the right input source) and read an event per frame. Unlike the previous two operating systems, the linux variant will emit a signal for all keys and display their integer keycode.
