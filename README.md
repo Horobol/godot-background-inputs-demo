@@ -20,7 +20,7 @@ This is the C++ bindings repository for Godot's GDExtensions. I should make this
 
 ### HotkeyTest
 
-This folder contains a tiny Godot project that utilizes the GDExtension in this project. It consists of a main scene that contains a `Label` and a custom `Win32InputCapture` node defined in the GDExtension. The `Win32InputCapture` node emits a signal for the F1-F12 keys and the `Label` node simply sets the text to whatever key is pushed.
+This folder contains a tiny Godot project that utilizes the GDExtension in this project. It consists of a main scene that contains a `Label` and a custom `BackgroundInputCapture` node defined in the GDExtension. The `BackgroundInputCapture` node emits a signal for the F1-F12 (Linux will emit on ALL keys) keys and the `Label` node simply sets the text to whatever key is pushed.
 
 - **Note:** For the GDExtension to be used in the sample project. A gdextension file detailing libraries needs to be defined along with the libraries themselves. This can be found within the `bin` folder inside the HotkeyTest Godot project.
 
