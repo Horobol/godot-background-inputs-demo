@@ -1,6 +1,6 @@
 #include "register_types.h"
 
-#include "Win32InputCapture.h"
+#include "BackgroundInputCapture.h"
 
 #include <gdextension_interface.h>
 #include <godot_cpp/core/defs.hpp>
@@ -14,7 +14,7 @@ void initialize_example_module(ModuleInitializationLevel p_level) {
 		return;
 	}
 
-	ClassDB::register_class<Win32InputCapture>();
+	ClassDB::register_class<BackgroundInputCapture>();
 }
 
 void uninitialize_example_module(ModuleInitializationLevel p_level) {

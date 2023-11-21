@@ -14,17 +14,24 @@ env = SConscript("godot-cpp/SConstruct")
 
 # tweak this if you want to use different folders, or more folders, to store your source code in.
 env.Append(CPPPATH=["src/"])
-sources = Glob("src/*.cpp")
 
 if env["platform"] == "macos":
+    sources = ["src/register_types.cpp", Glob("src/platform/macos/*.cpp")]
     library = env.SharedLibrary(
         "HotkeyTest/bin/libgdexample.{}.{}.framework/libgdexample.{}.{}".format(
             env["platform"], env["target"], env["platform"], env["target"]
         ),
         source=sources,
     )
+elif env["platform"] == "linux":
+	sources = ["src/register_types.cpp", Glob("src/platform/linux/*.cpp")]
+	library = env.SharedLibrary(
+        "HotkeyTest/bin/libgdexample{}{}".format(env["suffix"], env["SHLIBSUFFIX"]),
+        source=sources,
+    )
 else:
     env.Append(LIBS = 'User32.lib')
+    sources = ["src/register_types.cpp", Glob("src/platform/win32/*.cpp")]
     library = env.SharedLibrary(
         "HotkeyTest/bin/libgdexample{}{}".format(env["suffix"], env["SHLIBSUFFIX"]),
         source=sources,
