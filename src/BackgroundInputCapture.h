@@ -11,7 +11,7 @@ class BackgroundInputCapture : public Sprite2D {
 	GDCLASS(BackgroundInputCapture, Sprite2D)
 
 private:
-	std::map<int, std::string> keys;
+	std::map<int, int> keys;
 	int fd;
 
 protected:

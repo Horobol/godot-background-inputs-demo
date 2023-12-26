@@ -18,4 +18,4 @@ script = ExtResource("1_pfhxv")
 position = Vector2(-83, -76)
 texture = ExtResource("1_whbxp")
 
-[connection signal="bg_key_pressed" from="BackgroundInputCapture" to="Label" method="_on_win_32_input_capture_bg_key_pressed"]
+[connection signal="bg_key_pressed" from="BackgroundInputCapture" to="Label" method="_on_background_input_capture_bg_key_pressed"]
