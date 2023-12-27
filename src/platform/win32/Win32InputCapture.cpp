@@ -6,10 +6,11 @@
 using namespace godot;
 
 void BackgroundInputCapture::_bind_methods() {
-	ADD_SIGNAL(MethodInfo("bg_key_pressed", PropertyInfo(Variant::OBJECT, "node"), PropertyInfo(Variant::ARRAY, "key_pressed")));
+	ADD_SIGNAL(MethodInfo("bg_key_pressed", PropertyInfo(Variant::OBJECT, "node"), PropertyInfo(Variant::DICTIONARY, "key_pressed")));
 }
 
 BackgroundInputCapture::BackgroundInputCapture() {
+
 	// Fn keys
 	keys[VK_F1] = KEY_F1;
 	keys[VK_F2] = KEY_F2;
@@ -37,12 +38,15 @@ BackgroundInputCapture::BackgroundInputCapture() {
 	keys[VK_F24] = KEY_F24;
 
 	// Control keys
-	keys[VK_LCONTROL] = KEY_CTRL;
-	keys[VK_RCONTROL] = KEY_CTRL;
-	keys[VK_LSHIFT] = KEY_SHIFT;
-	keys[VK_RSHIFT] = KEY_SHIFT;
-	keys[VK_LMENU] = KEY_ALT;
-	keys[VK_RMENU] = KEY_ALT;
+	keys[VK_CONTROL] = KEY_CTRL;
+	// keys[VK_LCONTROL] = KEY_CTRL;
+	// keys[VK_RCONTROL] = KEY_CTRL;
+	keys[VK_SHIFT] = KEY_SHIFT;
+	// keys[VK_LSHIFT] = KEY_SHIFT;
+	// keys[VK_RSHIFT] = KEY_SHIFT;
+	keys[VK_MENU] = KEY_ALT;
+	// keys[VK_LMENU] = KEY_ALT;
+	// keys[VK_RMENU] = KEY_ALT;
 	keys[VK_TAB] = KEY_TAB;
 	keys[VK_SPACE] = KEY_SPACE;
 	keys[VK_BACK] = KEY_BACKSPACE;
@@ -89,22 +93,32 @@ BackgroundInputCapture::BackgroundInputCapture() {
 	keys[VK_MBUTTON] = MOUSE_BUTTON_MIDDLE;
 	keys[VK_XBUTTON1] = MOUSE_BUTTON_XBUTTON1;
 	keys[VK_XBUTTON2] = MOUSE_BUTTON_XBUTTON2;
+
+	for (auto const &[key, value] : keys) {
+		pressed[value] = false;
+	}
 }
 
 BackgroundInputCapture::~BackgroundInputCapture() {
 	// Add your cleanup here.
 }
 
-void BackgroundInputCapture::_process(double delta) {
-	Array keys_pressed{};
+void BackgroundInputCapture::_process(double delta) {	
+	bool has_changed = false;
 
 	for (auto const &[key, value] : keys) {
-		if (GetAsyncKeyState(key) & KF_UP) {
-			keys_pressed.push_back(value);
+		if (GetAsyncKeyState(key) & 0x8000) {
+			if (!pressed.get(value, false)) {
+				pressed[value] = true;
+				has_changed = true;
+			}
+		} else if (pressed.get(value, false)) {
+			pressed[value] = false;
+			has_changed = true;
 		}
 	}
 
-	if (!keys_pressed.is_empty()) {
-		emit_signal("bg_key_pressed", this, keys_pressed);
+	if (has_changed) {
+		emit_signal("bg_key_pressed", this, pressed);
 	}
 }

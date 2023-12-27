@@ -12,7 +12,11 @@ class BackgroundInputCapture : public Sprite2D {
 
 private:
 	std::map<int, int> keys;
-	int fd;
+	Dictionary pressed;
+	#ifdef __linux__
+	int keyboardFd;
+	int miceFd;
+	#endif
 
 protected:
 	static void _bind_methods();

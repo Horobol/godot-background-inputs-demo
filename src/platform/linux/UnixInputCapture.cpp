@@ -95,7 +95,7 @@ BackgroundInputCapture::BackgroundInputCapture() {
  	}
   
   	if (devices.size() == 0) {
-  		fd = -1;
+  		keyboardFd = -1;
   		return;
   	}
 
@@ -103,22 +103,22 @@ BackgroundInputCapture::BackgroundInputCapture() {
   	int max_device = std::max_element(scores.begin(), scores.end()) - scores.begin();
   	std::string input_device = devices[max_device];  // for now, use only the first found device
   	
-    fd = open(input_device.c_str(), O_RDONLY | O_NONBLOCK);
+    keyboardFd = open(input_device.c_str(), O_RDONLY | O_NONBLOCK);
 }
 
 BackgroundInputCapture::~BackgroundInputCapture() {
-	close(fd);
+	close(keyboardFd);
 }
 
 void BackgroundInputCapture::_process(double delta) {
-	if (fd == -1) {
+	if (keyboardFd == -1) {
 		return;
 	}
     
     struct input_event ev;
     ssize_t n;
     
-    n = read(fd, &ev, sizeof ev);
+    n = read(keyboardFd, &ev, sizeof ev);
     
     if (n == (ssize_t) - 1) {
         if (errno == EINTR)
