@@ -87,6 +87,19 @@ BackgroundInputCapture::BackgroundInputCapture() {
 	// Numbers (these also map out to the same as Godot)
 	for (int i = KEY_0; i <= KEY_9; i++) keys[i] = i;
 
+	// Regional keys
+	keys[VK_OEM_1] = KEY_SEMICOLON;
+	keys[VK_OEM_2] = KEY_SLASH;
+	keys[VK_OEM_3] = KEY_ASCIITILDE;
+	keys[VK_OEM_4] = KEY_BRACKETLEFT;
+	keys[VK_OEM_5] = KEY_BACKSLASH;
+	keys[VK_OEM_6] = KEY_BRACKETRIGHT;
+	keys[VK_OEM_7] = KEY_QUOTEDBL;
+	keys[VK_OEM_PLUS] = KEY_PLUS;
+	keys[VK_OEM_COMMA] = KEY_COMMA;
+	keys[VK_OEM_MINUS] = KEY_MINUS;
+	keys[VK_OEM_PERIOD] = KEY_PERIOD;
+
 	// Mouse buttons
 	keys[VK_LBUTTON] = MOUSE_BUTTON_LEFT;
 	keys[VK_RBUTTON] = MOUSE_BUTTON_RIGHT;
