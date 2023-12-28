@@ -206,14 +206,14 @@ BackgroundInputCapture::~BackgroundInputCapture() {
 void BackgroundInputCapture::_process(double delta) {
 	bool has_changed = false;
 
-	if (keyboardFd == -1) {
+	if (keyboardFd == -1 || miceFd == -1) {
 		return;
 	}
     
-    struct input_event ev[5];
+    struct input_event ev;
     ssize_t n;
     
-    n = read(keyboardFd, &ev, sizeof(struct input_event) * 5);
+    n = read(keyboardFd, &ev, sizeof(struct input_event));
     
     if (n == (ssize_t) - 1) {
         if (errno == EINTR)
@@ -226,15 +226,13 @@ void BackgroundInputCapture::_process(double delta) {
         return;
     }
     
-	for (int i = 0; i < 5; i++) {
-		if (ev[i].type == EV_KEY && keys.find(ev[i].code) != keys.end()) {
-			if (ev[i].value == 1) {
-				pressed[keys[ev[i].code]] = true;
-				has_changed = true;
-			} else if (ev[i].value == 0) {
-				pressed[keys[ev[i].code]] = false;
-				has_changed = true;
-			}
+	if (ev.type == EV_KEY && keys.find(ev.code) != keys.end()) {
+		if (ev.value == 1) {
+			pressed[keys[ev.code]] = true;
+			has_changed = true;
+		} else if (ev.value == 0) {
+			pressed[keys[ev.code]] = false;
+			has_changed = true;
 		}
 	}
 
