@@ -1,6 +1,7 @@
 #include "../../BackgroundInputCapture.h"
 #include "./UnixInputEventCodes.h"
 #include <godot_cpp/core/class_db.hpp>
+#include <godot_cpp/variant/utility_functions.hpp>
 
 #include <stdlib.h>
 #include <unistd.h>
@@ -65,7 +66,7 @@ BackgroundInputCapture::BackgroundInputCapture() {
 	keys[PH_KEY_RIGHTALT] = KEY_ALT;
 	keys[PH_KEY_TAB] = KEY_TAB;
 	keys[PH_KEY_SPACE] = KEY_SPACE;
-	keys[PH_KEY_BACK] = KEY_BACKSPACE;
+	keys[PH_KEY_BACKSPACE] = KEY_BACKSPACE;
 	keys[PH_KEY_INSERT] = KEY_INSERT;
 	keys[PH_KEY_DELETE] = KEY_DELETE;
 	keys[PH_KEY_HOME] = KEY_HOME;
@@ -130,9 +131,29 @@ BackgroundInputCapture::BackgroundInputCapture() {
 	keys[PH_KEY_0] = KEY_0;
 	for (int i = 0; i <= PH_KEY_9 - PH_KEY_1; i++) keys[PH_KEY_1 + i] = KEY_1 + i;
 
+	// Regional keys
+	keys[PH_KEY_SEMICOLON] = KEY_SEMICOLON;
+	keys[PH_KEY_SLASH] = KEY_SLASH;
+	keys[PH_KEY_GRAVE] = KEY_ASCIITILDE;
+	keys[PH_KEY_LEFTBRACE] = KEY_BRACKETLEFT;
+	keys[PH_KEY_BACKSLASH] = KEY_BACKSLASH;
+	keys[PH_KEY_RIGHTBRACE] = KEY_BRACKETRIGHT;
+	keys[PH_KEY_APOSTROPHE] = KEY_QUOTEDBL;
+	keys[PH_KEY_EQUAL] = KEY_PLUS;
+	keys[PH_KEY_COMMA] = KEY_COMMA;
+	keys[PH_KEY_MINUS] = KEY_MINUS;
+	keys[PH_KEY_DOT] = KEY_PERIOD;
+
 	for (auto const &[key, value] : keys) {
 		pressed[value] = false;
 	}
+
+	// Mouse buttons, special handler for these from the mice fd
+	pressed[MOUSE_BUTTON_LEFT] = false;
+	pressed[MOUSE_BUTTON_MIDDLE] = false;
+	pressed[MOUSE_BUTTON_RIGHT] = false;
+	pressed[MOUSE_BUTTON_XBUTTON1] = false;
+	pressed[MOUSE_BUTTON_XBUTTON2] = false;
 
 	//Look for devices with keybit bitmask that has keys a keyboard doeas
 	//If a bitmask ends with 'e', it supports KEY_2, KEY_1, KEY_ESC, and KEY_RESERVED is set to 0, so it's probably a keyboard
@@ -197,6 +218,10 @@ BackgroundInputCapture::BackgroundInputCapture() {
   	std::string input_device = devices[max_device];  // for now, use only the first found device
   	
     keyboardFd = open(input_device.c_str(), O_RDONLY | O_NONBLOCK);
+
+	// Read from all mouse inputs (I'm sure I can tout this as a feature later)
+	// Rethink this later, its fairly outdated
+	miceFd = open("/dev/input/mice", O_RDONLY | O_NONBLOCK);
 }
 
 BackgroundInputCapture::~BackgroundInputCapture() {
@@ -206,33 +231,63 @@ BackgroundInputCapture::~BackgroundInputCapture() {
 void BackgroundInputCapture::_process(double delta) {
 	bool has_changed = false;
 
-	if (keyboardFd == -1 || miceFd == -1) {
-		return;
+	if (keyboardFd != -1) {
+		struct input_event keyboard_ev;
+		ssize_t keyboard_read_bytes;
+		
+		keyboard_read_bytes = read(keyboardFd, &keyboard_ev, sizeof(struct input_event));
+
+		if (keyboard_read_bytes > 0 && keyboard_ev.type == EV_KEY && keys.find(keyboard_ev.code) != keys.end()) {
+			if (keyboard_ev.value == 1) {
+				pressed[keys[keyboard_ev.code]] = true;
+				has_changed = true;
+			} else if (keyboard_ev.value == 0) {
+				pressed[keys[keyboard_ev.code]] = false;
+				has_changed = true;
+			}
+		}	
 	}
-    
-    struct input_event ev;
-    ssize_t n;
-    
-    n = read(keyboardFd, &ev, sizeof(struct input_event));
-    
-    if (n == (ssize_t) - 1) {
-        if (errno == EINTR)
-            return;
-        else
-            return;
-    } else
-    if (n < sizeof(struct input_event)) {
-        errno = EIO;
-        return;
-    }
-    
-	if (ev.type == EV_KEY && keys.find(ev.code) != keys.end()) {
-		if (ev.value == 1) {
-			pressed[keys[ev.code]] = true;
-			has_changed = true;
-		} else if (ev.value == 0) {
-			pressed[keys[ev.code]] = false;
-			has_changed = true;
+
+	if (miceFd != 1) {
+		unsigned char data[3];
+		memset(data, 0, sizeof(data));
+
+		ssize_t mouse_read_bytes;
+		
+		mouse_read_bytes = read(miceFd, data, sizeof(data));
+
+		// No documentation I could find , just figured these bits through testing
+		// Extra buttons seem to map down to these three too...
+		if (mouse_read_bytes > 0) {
+			if (data[0] & 0x1) {
+				if (!pressed[MOUSE_BUTTON_LEFT]) {
+					pressed[MOUSE_BUTTON_LEFT] = true;
+					has_changed = true;
+				}
+			} else if (pressed[MOUSE_BUTTON_LEFT]) {
+				pressed[MOUSE_BUTTON_LEFT] = false;
+				has_changed = true;
+			}
+
+			if (data[0] & 0x2) {
+				if (!pressed[MOUSE_BUTTON_RIGHT]) {
+					pressed[MOUSE_BUTTON_RIGHT] = true;
+					has_changed = true;
+				}
+			} else if (pressed[MOUSE_BUTTON_RIGHT]) {
+				pressed[MOUSE_BUTTON_RIGHT] = false;
+				has_changed = true;
+			}
+
+			if (data[0] & 0x4) {
+				if (!pressed[MOUSE_BUTTON_MIDDLE]) {
+					pressed[MOUSE_BUTTON_MIDDLE] = true;
+					has_changed = true;
+				}
+			} else if (pressed[MOUSE_BUTTON_MIDDLE]) {
+				pressed[MOUSE_BUTTON_MIDDLE] = false;
+				has_changed = true;
+			}
 		}
 	}
 
