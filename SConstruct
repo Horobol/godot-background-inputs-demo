@@ -16,9 +16,10 @@ env = SConscript("godot-cpp/SConstruct")
 env.Append(CPPPATH=["src/"])
 
 if env["platform"] == "macos":
+    env.Append(LINKFLAGS = ['-framework', 'Carbon'])
     sources = ["src/register_types.cpp", Glob("src/platform/macos/*.cpp")]
     library = env.SharedLibrary(
-        "HotkeyTest/bin/libgdexample.{}.{}.framework/libgdexample.{}.{}".format(
+        "HotkeyTest/bin/libgdexample{}{}.framework/libgdexample{}{}".format(
             env["platform"], env["target"], env["platform"], env["target"]
         ),
         source=sources,
